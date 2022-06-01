@@ -1,10 +1,10 @@
 package com.lite.interceptor;
 
 import com.lite.utils.JwtUtil;
+import com.lite.utils.LiteHttpExceptionStatus;
 import com.lite.utils.RedisCache;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -20,29 +20,25 @@ public class LoginInterceptor implements HandlerInterceptor {
     RedisCache cache;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler){
         String token = request.getHeader("token");
 
-        if (Objects.isNull(token)) {//请求头未携带token 返回401
-            response.sendError(HttpStatus.UNAUTHORIZED.value());
-            return false;
+        if (Objects.isNull(token)) {//请求头未携带token
+            throw new RuntimeException(LiteHttpExceptionStatus.NO_AUTH.msg());
         }
 
-        //尝试解析Token,解析失败则返回401
+        //尝试解析Token
         String userId = null;
         try {
             Claims claims = JwtUtil.parseJWT(token);
             userId = claims.getSubject();
         } catch (Exception e) {
-            e.printStackTrace();
-            response.sendError(HttpStatus.UNAUTHORIZED.value());
-            return false;
+            throw new RuntimeException(LiteHttpExceptionStatus.ILLEGAL_AUTH.msg());
         }
 
-        //在Redis中查询对应userID的用户,如果不存在则返回401
+        //在Redis中查询对应userID的用户
         if (Objects.isNull(userId) || Objects.isNull(cache.getCacheObject(userId))) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value());
-            return false;
+            throw new RuntimeException(LiteHttpExceptionStatus.ILLEGAL_AUTH.msg());
         }
 
         //以上校验全部通过则确认为登陆状态

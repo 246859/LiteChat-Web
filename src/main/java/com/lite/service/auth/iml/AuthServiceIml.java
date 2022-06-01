@@ -7,6 +7,7 @@ import com.lite.dto.Token;
 import com.lite.entity.User;
 import com.lite.service.auth.AuthService;
 import com.lite.utils.JwtUtil;
+import com.lite.utils.LiteHttpExceptionStatus;
 import com.lite.utils.PasswordEncoder;
 import com.lite.utils.RedisCache;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class AuthServiceIml implements AuthService {
 
 
         if (Objects.isNull(temp) || Objects.isNull(password) ||!PasswordEncoder.enCode(password).equals(temp.getPassword())) {//验证失败则返回错误代码
-            return new ResponseResult<>(HttpStatus.BAD_REQUEST.value(),"用户名不存在或者密码错误",null);
+            throw new RuntimeException(LiteHttpExceptionStatus.LOGIN_FAIL.msg());
         }
 
         //如果成功则返回用户token
@@ -46,7 +47,7 @@ public class AuthServiceIml implements AuthService {
         //将当前用户存入Redis
         cache.setCacheObject(temp.getUserName(), temp);
 
-        return new ResponseResult<>(HttpStatus.OK.value(),"用户登陆成功",new Token(userToken));
+        return new ResponseResult<>(LiteHttpExceptionStatus.LOGIN_OK.code(),LiteHttpExceptionStatus.LOGIN_OK.msg(),new Token(userToken));
     }
 
     @Override
@@ -61,7 +62,7 @@ public class AuthServiceIml implements AuthService {
 
         //如果查询出来用户不为空
         if (!Objects.isNull(temp)){
-            return new ResponseResult<>(HttpStatus.BAD_REQUEST.value(),"当前用户名已被占用",null);
+            throw new RuntimeException(LiteHttpExceptionStatus.USER_ALREADY_EXIST.msg());
         }
 
         //用户不存在则创建用户
@@ -71,9 +72,9 @@ public class AuthServiceIml implements AuthService {
 
         //执行成功影响条数
         if (count == 0){
-            return new ResponseResult<>(HttpStatus.BAD_REQUEST.value(),"用户注册失败",null);
+            throw new RuntimeException(LiteHttpExceptionStatus.REGISTER_FAIL.msg());
         }
 
-        return new ResponseResult<>(HttpStatus.OK.value(),"用户注册成功",null);
+        return new ResponseResult<>(LiteHttpExceptionStatus.REGISTER_OK.code(),LiteHttpExceptionStatus.LOGIN_OK.msg(),null);
     }
 }
