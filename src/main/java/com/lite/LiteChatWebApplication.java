@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 @SpringBootApplication
 @CrossOrigin
-@MapperScan("org.lite.dao")
+@MapperScan("com.lite.dao")
 public class LiteChatWebApplication {
 
     public static void main(String[] args) {

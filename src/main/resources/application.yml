@@ -8,7 +8,18 @@ spring:
     port: 6379
     host: localhost
     password: wyh246859
+    lettuce: #默认使用lettuce
+      pool:
+        max-active: 100 # 最大连接数
+        max-idle: 20 # 最大空闲连接
+        min-idle: 5 #最小空闲连接
+        max-wait: 12000 #连接等待时间
+
+  devtools:
+    restart:
+      enabled: true
+
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
 server:
-  port: 8081
+  port: 8088
