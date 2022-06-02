@@ -1,5 +1,6 @@
 package com.lite.interceptor;
 
+import com.lite.dto.Token;
 import com.lite.utils.JwtUtil;
 import com.lite.utils.LiteHttpExceptionStatus;
 import com.lite.utils.RedisCache;
@@ -21,24 +22,30 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler){
-        String token = request.getHeader("token");
+        String token = request.getHeader(Token.TokenFlag);
 
-        if (Objects.isNull(token)) {//请求头未携带token
-            throw new RuntimeException(LiteHttpExceptionStatus.NO_AUTH.msg());
-        }
-
-        //尝试解析Token
-        String userId = null;
         try {
-            Claims claims = JwtUtil.parseJWT(token);
-            userId = claims.getSubject();
-        } catch (Exception e) {
-            throw new RuntimeException(LiteHttpExceptionStatus.ILLEGAL_AUTH.msg());
-        }
+            if (Objects.isNull(token)) {//请求头未携带token
+                throw new RuntimeException(LiteHttpExceptionStatus.NO_AUTH.msg());
+            }
 
-        //在Redis中查询对应userID的用户
-        if (Objects.isNull(userId) || Objects.isNull(cache.getCacheObject(userId))) {
-            throw new RuntimeException(LiteHttpExceptionStatus.ILLEGAL_AUTH.msg());
+            //尝试解析Token
+            String userId = null;
+            try {
+                Claims claims = JwtUtil.parseJWT(token);
+                userId = claims.getSubject();
+            } catch (Exception e) {
+                throw new RuntimeException(LiteHttpExceptionStatus.ILLEGAL_AUTH.msg());
+            }
+
+            //在Redis中查询对应userID的用户
+            if (Objects.isNull(userId) || Objects.isNull(cache.getCacheObject(userId))) {
+                throw new RuntimeException(LiteHttpExceptionStatus.ILLEGAL_AUTH.msg());
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
         }
 
         //以上校验全部通过则确认为登陆状态

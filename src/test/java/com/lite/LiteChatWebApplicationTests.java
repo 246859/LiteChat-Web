@@ -25,7 +25,7 @@ class LiteChatWebApplicationTests {
     @Test
     void contextLoads() {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUserName,"wyh");
+        queryWrapper.eq(User::getUserName,"stranger");
 
         User temp = mapper.selectOne(queryWrapper);//查询用户表
 

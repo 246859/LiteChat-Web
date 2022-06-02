@@ -8,5 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Token {
+
+    public static final String TokenFlag = "token";
+
     private String token;
 }

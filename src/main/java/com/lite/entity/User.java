@@ -37,4 +37,13 @@ public class User {
 
     private Timestamp update_time;
 
+    public User(Integer eid,String userName, String nickName, String password) {
+        this.eid = eid;
+        this.userName = userName;
+        this.nickName = nickName;
+        this.password = password;
+    }
+    public User(){
+
+    }
 }
