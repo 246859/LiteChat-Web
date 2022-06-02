@@ -1,7 +1,7 @@
 package com.lite.service.auth.iml;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.lite.dao.authDao.LoginMapper;
+import com.lite.dao.authDao.AuthMapper;
 import com.lite.dto.ResponseResult;
 import com.lite.dto.Token;
 import com.lite.entity.User;
@@ -10,17 +10,20 @@ import com.lite.utils.JwtUtil;
 import com.lite.utils.LiteHttpExceptionStatus;
 import com.lite.utils.PasswordEncoder;
 import com.lite.utils.RedisCache;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.Objects;
 
 @Service
 public class AuthServiceIml implements AuthService {
 
     @Autowired
-    LoginMapper mapper;
+    AuthMapper mapper;
 
     @Autowired
     RedisCache cache;
@@ -37,8 +40,8 @@ public class AuthServiceIml implements AuthService {
         User temp = mapper.selectOne(queryWrapper);//查询用户表
 
 
-        if (Objects.isNull(temp) || Objects.isNull(password) ||!PasswordEncoder.enCode(password).equals(temp.getPassword())) {//验证失败则返回错误代码
-            throw new RuntimeException(LiteHttpExceptionStatus.LOGIN_FAIL.msg());
+        if (Objects.isNull(temp) || Objects.isNull(password) || !PasswordEncoder.enCode(password).equals(temp.getPassword())) {//验证失败则返回错误代码
+            return new ResponseResult<>(LiteHttpExceptionStatus.LOGIN_FAIL.code(), LiteHttpExceptionStatus.LOGIN_FAIL.msg());
         }
 
         //如果成功则返回用户token
@@ -47,7 +50,7 @@ public class AuthServiceIml implements AuthService {
         //将当前用户存入Redis
         cache.setCacheObject(temp.getUserName(), temp);
 
-        return new ResponseResult<>(LiteHttpExceptionStatus.LOGIN_OK.code(),LiteHttpExceptionStatus.LOGIN_OK.msg(),new Token(userToken));
+        return new ResponseResult<>(LiteHttpExceptionStatus.LOGIN_OK.code(), LiteHttpExceptionStatus.LOGIN_OK.msg(), new Token(userToken));
     }
 
     @Override
@@ -61,8 +64,8 @@ public class AuthServiceIml implements AuthService {
         User temp = mapper.selectOne(queryWrapper);//查询用户表
 
         //如果查询出来用户不为空
-        if (!Objects.isNull(temp)){
-            throw new RuntimeException(LiteHttpExceptionStatus.USER_ALREADY_EXIST.msg());
+        if (!Objects.isNull(temp)) {
+            return new ResponseResult<>(LiteHttpExceptionStatus.USER_ALREADY_EXIST.code(), LiteHttpExceptionStatus.USER_ALREADY_EXIST.msg());
         }
 
         //用户不存在则创建用户
@@ -71,10 +74,41 @@ public class AuthServiceIml implements AuthService {
 
 
         //执行成功影响条数
-        if (count == 0){
-            throw new RuntimeException(LiteHttpExceptionStatus.REGISTER_FAIL.msg());
+        if (count == 0) {
+            return new ResponseResult<>(LiteHttpExceptionStatus.REGISTER_FAIL.code(), LiteHttpExceptionStatus.REGISTER_FAIL.msg());
         }
 
-        return new ResponseResult<>(LiteHttpExceptionStatus.REGISTER_OK.code(),LiteHttpExceptionStatus.REGISTER_OK.msg(),null);
+        return new ResponseResult<>(LiteHttpExceptionStatus.REGISTER_OK.code(), LiteHttpExceptionStatus.REGISTER_OK.msg(), null);
+    }
+
+    @Override
+    public ResponseResult<Boolean> logout(HttpServletRequest request) {
+
+        String token = String.valueOf(request.getHeader(Token.TokenFlag));//获取请求头中的token
+
+        Boolean result = false;
+
+        try {
+
+            Claims claims = JwtUtil.parseJWT(token);//尝试解析token
+            String userName = claims.getSubject();
+
+            User user = cache.getCacheObject(userName);
+
+            if (!Objects.isNull(user)) {//如果缓存中的用户存在
+                result = cache.deleteObject(userName);//删除缓存中对应的用户
+            }
+
+        } catch (Exception e) {//解析失败表明token非法或者已经过期
+            e.printStackTrace();
+            throw new RuntimeException(LiteHttpExceptionStatus.NO_AUTH.msg());
+        }
+
+        return new ResponseResult<>(
+                result ?
+                        LiteHttpExceptionStatus.LOGOUT_OK.code() : LiteHttpExceptionStatus.LOGOUT_FAIL.code(),
+                result ?
+                        LiteHttpExceptionStatus.LOGOUT_OK.msg() : LiteHttpExceptionStatus.LOGOUT_FAIL.msg(),
+                result);
     }
 }

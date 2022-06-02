@@ -1,18 +1,13 @@
 package com.lite;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.lite.dao.authDao.LoginMapper;
+import com.lite.dao.authDao.AuthMapper;
 import com.lite.entity.User;
-import com.lite.utils.PasswordEncoder;
 import com.lite.utils.RedisCache;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.script.DigestUtils;
-
-import javax.xml.crypto.Data;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 @SpringBootTest
 class LiteChatWebApplicationTests {
@@ -21,7 +16,7 @@ class LiteChatWebApplicationTests {
     RedisCache redisCache;
 
     @Autowired
-    LoginMapper mapper;
+    AuthMapper mapper;
     @Test
     void contextLoads() {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();

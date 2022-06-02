@@ -12,6 +12,6 @@ public class ControllerAdvice {
     @ExceptionHandler(Exception.class)//统一处理所有异常
     public ResponseResult<String> handlerException(Exception exception){
         exception.printStackTrace();//打印异常
-        return new ResponseResult<>(HttpStatus.BAD_REQUEST.value(),exception.getMessage(),null);
+        return new ResponseResult<>(HttpStatus.BAD_REQUEST.value(),exception.getMessage());
     }
 }
