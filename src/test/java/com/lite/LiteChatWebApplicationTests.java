@@ -8,8 +8,9 @@ import com.lite.utils.RedisCache;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.util.DigestUtils;
+import org.springframework.data.redis.core.script.DigestUtils;
 
+import javax.xml.crypto.Data;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
@@ -32,6 +33,11 @@ class LiteChatWebApplicationTests {
         temp.setUserName("aaaa");
         temp.setEid(2);
         mapper.insert(temp);
+    }
+
+    @Test
+    void test(){
+        System.out.println(DigestUtils.sha1DigestAsHex("Lite_Chat_Serve"));
     }
 
 }

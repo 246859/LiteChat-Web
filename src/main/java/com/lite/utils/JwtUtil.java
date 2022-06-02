@@ -19,7 +19,10 @@ public class JwtUtil {
     //有效期为
     public static final Long JWT_TTL = 24 * 60 * 60 * 1000L;// 一天
     //设置秘钥明文
-    public static final String JWT_KEY = "sangeng";
+    public static final String JWT_KEY = "1eb7e442e393faf142af0f121fa3ca00688b7226";
+
+    //签发者
+    public static final String ISSUER = "ad8d2454bb1e01f5a32c77bd6e3e0dabd6edb979";
 
     public static String getUUID() {
         String token = UUID.randomUUID().toString().replaceAll("-", "");
@@ -27,7 +30,7 @@ public class JwtUtil {
     }
 
     /**
-     * 生成jtw
+     * 生成jwt
      *
      * @param subject token中要存放的数据（json格式）
      * @return
@@ -62,7 +65,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setId(uuid)              //唯一的ID
                 .setSubject(subject)   // 主题  可以是JSON数据
-                .setIssuer("sg")     // 签发者
+                .setIssuer(ISSUER)     // 签发者
                 .setIssuedAt(now)      // 签发时间
                 .signWith(signatureAlgorithm, secretKey) //使用HS256对称加密算法签名, 第二个参数为秘钥
                 .setExpiration(expDate);
@@ -81,14 +84,6 @@ public class JwtUtil {
         return builder.compact();
     }
 
-//    public static void main(String[] args) throws Exception {
-////        String jwt = createJWT("2123");
-//        Claims claims = parseJWT("eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIyOTY2ZGE3NGYyZGM0ZDAxOGU1OWYwNjBkYmZkMjZhMSIsInN1YiI6IjIiLCJpc3MiOiJzZyIsImlhdCI6MTYzOTk2MjU1MCwiZXhwIjoxNjM5OTY2MTUwfQ.NluqZnyJ0gHz-2wBIari2r3XpPp06UMn4JS2sWHILs0");
-//        String subject = claims.getSubject();
-//        System.out.println(subject);
-////        System.out.println(claims);
-//    }
-
     /**
      * 生成加密后的秘钥 secretKey
      *
@@ -96,8 +91,7 @@ public class JwtUtil {
      */
     public static SecretKey generalKey() {
         byte[] encodedKey = Base64.getDecoder().decode(JwtUtil.JWT_KEY);
-        SecretKey key = new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
-        return key;
+        return new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
     }
 
     /**

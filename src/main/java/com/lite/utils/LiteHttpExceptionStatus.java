@@ -3,8 +3,8 @@ package com.lite.utils;
 public enum LiteHttpExceptionStatus {
 
     BAD_REQUEST("请求异常,发生错误", 400),
-    NO_AUTH("用户未经过认证", 400),
-    ILLEGAL_AUTH("非法的用户认证", 400),
+    NO_AUTH("用户未经过认证", 401),
+    ILLEGAL_AUTH("非法的用户认证", 401),
     USER_NOT_FOUND("用户不存在", 400),
     USER_ALREADY_EXIST("用户已存在", 400),
     LOGIN_OK("用户登陆成功", 200),

@@ -75,6 +75,6 @@ public class AuthServiceIml implements AuthService {
             throw new RuntimeException(LiteHttpExceptionStatus.REGISTER_FAIL.msg());
         }
 
-        return new ResponseResult<>(LiteHttpExceptionStatus.REGISTER_OK.code(),LiteHttpExceptionStatus.LOGIN_OK.msg(),null);
+        return new ResponseResult<>(LiteHttpExceptionStatus.REGISTER_OK.code(),LiteHttpExceptionStatus.REGISTER_OK.msg(),null);
     }
 }
