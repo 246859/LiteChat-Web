@@ -3,11 +3,14 @@ package com.lite;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lite.dao.authDao.AuthMapper;
 import com.lite.entity.User;
+import com.lite.utils.AvatarUtils;
 import com.lite.utils.RedisCache;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.script.DigestUtils;
+
+import java.io.File;
 
 @SpringBootTest
 class LiteChatWebApplicationTests {
@@ -35,4 +38,16 @@ class LiteChatWebApplicationTests {
         System.out.println(DigestUtils.sha1DigestAsHex("Lite_Chat_Serve"));
     }
 
+
+    @Test
+    void test1(){
+        File file = new File("src/main/resources/static/avator/boy_avatar_1.svg");
+        System.out.println(file.exists());
+        System.out.println(file.length());
+    }
+
+    @Test
+    void test2(){
+        System.out.println(AvatarUtils.getDefaultAvatar());
+    }
 }

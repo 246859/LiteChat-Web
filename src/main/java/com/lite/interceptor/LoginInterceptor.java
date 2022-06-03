@@ -6,12 +6,14 @@ import com.lite.utils.LiteHttpExceptionStatus;
 import com.lite.utils.RedisCache;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Objects;
 
 @Component
@@ -21,7 +23,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     RedisCache cache;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler){
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         String token = request.getHeader(Token.TokenFlag);
 
         try {
@@ -44,7 +46,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             }
 
         }catch (Exception e){
-            e.printStackTrace();
+            response.sendError(HttpStatus.FORBIDDEN.value());
             return false;
         }
 
