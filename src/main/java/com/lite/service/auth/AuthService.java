@@ -8,7 +8,7 @@ import org.springframework.http.HttpRequest;
 import javax.servlet.http.HttpServletRequest;
 
 public interface AuthService {
-    ResponseResult<Token> login(User user);
+    ResponseResult<Token> login(User user,String ip);
 
     ResponseResult<String> register(User user);
 

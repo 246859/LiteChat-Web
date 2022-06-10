@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lite.dao.authDao.AuthMapper;
 import com.lite.dto.ResponseResult;
 import com.lite.dto.Token;
+import com.lite.entity.LoginUser;
 import com.lite.entity.User;
 import com.lite.service.auth.AuthService;
 import com.lite.utils.JwtUtil;
@@ -29,7 +30,7 @@ public class AuthServiceIml implements AuthService {
     RedisCache cache;
 
     @Override
-    public ResponseResult<Token> login(User user) {
+    public ResponseResult<Token> login(User user,String ip) {
 
         String userName = user.getUserName();
         String password = user.getPassword();
@@ -48,7 +49,7 @@ public class AuthServiceIml implements AuthService {
         String userToken = JwtUtil.createJWT(temp.getUserName());
 
         //将当前用户存入Redis
-        cache.setCacheObject(temp.getUserName(), temp);
+        cache.setCacheObject(temp.getUserName(), new LoginUser(temp,ip));
 
         return new ResponseResult<>(LiteHttpExceptionStatus.LOGIN_OK.code(), LiteHttpExceptionStatus.LOGIN_OK.msg(), new Token(userToken));
     }

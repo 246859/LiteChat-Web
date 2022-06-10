@@ -27,7 +27,7 @@ public class AuthController {
 
     @RequestMapping("/login")
     public ResponseResult<Token> login(@RequestBody User user) {
-        return authService.login(user);
+        return authService.login(user,request.getRemoteAddr());
     }
 
     @RequestMapping("/register")

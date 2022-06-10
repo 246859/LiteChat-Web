@@ -24,6 +24,8 @@ mybatis-plus:
 
 server:
   port: 8088
+  tomcat:
+    uri-encoding: utf-8
 
 logging:
   level:

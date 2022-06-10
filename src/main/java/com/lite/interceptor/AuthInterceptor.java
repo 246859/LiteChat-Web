@@ -1,10 +1,9 @@
 package com.lite.interceptor;
 
 import com.lite.dto.Token;
-import com.lite.utils.JwtUtil;
+import com.lite.utils.AuthUtils;
 import com.lite.utils.LiteHttpExceptionStatus;
 import com.lite.utils.RedisCache;
-import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -17,10 +16,13 @@ import java.io.IOException;
 import java.util.Objects;
 
 @Component
-public class LoginInterceptor implements HandlerInterceptor {
+public class AuthInterceptor implements HandlerInterceptor {
 
     @Autowired
     RedisCache cache;
+
+    @Autowired
+    AuthUtils authUtils;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
@@ -31,18 +33,8 @@ public class LoginInterceptor implements HandlerInterceptor {
                 throw new RuntimeException(LiteHttpExceptionStatus.NO_AUTH.msg());
             }
 
-            //尝试解析Token
-            String userId = null;
-            try {
-                Claims claims = JwtUtil.parseJWT(token);
-                userId = claims.getSubject();
-            } catch (Exception e) {
-                throw new RuntimeException(LiteHttpExceptionStatus.ILLEGAL_AUTH.msg());
-            }
-
-            //在Redis中查询对应userID的用户
-            if (Objects.isNull(userId) || Objects.isNull(cache.getCacheObject(userId))) {
-                throw new RuntimeException(LiteHttpExceptionStatus.ILLEGAL_AUTH.msg());
+            if (authUtils.authIsValidUser(token,cache,request)){//校验是否为合法用户
+                throw new RuntimeException(LiteHttpExceptionStatus.NO_AUTH.msg());
             }
 
         }catch (Exception e){
