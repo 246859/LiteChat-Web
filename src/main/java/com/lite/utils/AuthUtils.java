@@ -15,12 +15,7 @@ public class AuthUtils {
         String userId = null;
         LoginUser loginUser = null;
 
-        try {
-            Claims claims = JwtUtil.parseJWT(token);
-            userId = claims.getSubject();
-        } catch (Exception e) {
-            return null;
-        }
+        userId = parseJWT(token);
 
         //在Redis中查询对应userID的用户
         if (Objects.isNull(userId) || Objects.isNull((loginUser = cache.getCacheObject(userId)))) {
@@ -39,8 +34,8 @@ public class AuthUtils {
 
         String requestIp = request.getRemoteAddr();
 
-        if (loginUser.getIp().equals(requestIp)) {//验证IP地址是否一致
-            throw new RuntimeException(LiteHttpExceptionStatus.NO_AUTH.msg());
+        if (!loginUser.getIp().equals(requestIp)) {//验证IP地址是否一致
+            throw new RuntimeException(LiteHttpExceptionStatus.IP_ERROR.msg());
         }
 
         return true;
@@ -62,16 +57,24 @@ public class AuthUtils {
         //redis中的ws地址不为空,说明ws连接已建立,需要进行校验
         if (!Objects.isNull(wsAddress)) {
             if (!wsAddress.equals(requestWsIp)) {
-                throw new RuntimeException(LiteHttpExceptionStatus.NO_AUTH.msg());
+                throw new RuntimeException(LiteHttpExceptionStatus.WS_ERROR.msg());
             }
         } else { //redis中的ws地址为空说明还未建立ws连接,可以直接放行,并存入此次的ws地址
+            loginUser.setWsAddress(requestWsIp);
             String username = loginUser.getUser().getUserName();
-            LoginUser temp = cache.getCacheObject(username);
-            temp.setWsAddress(requestWsIp);
-            cache.setCacheObject(username, temp);
+            cache.setCacheObject(username,loginUser);
         }
 
         return true;
+    }
+
+    public String parseJWT(String token){
+        try {
+            Claims claims = JwtUtil.parseJWT(token);
+            return claims.getSubject();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

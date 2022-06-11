@@ -16,6 +16,11 @@ public class Message {
     private String senderName;
 
     /**
+     * 发送者昵称
+     */
+    private String sendNickName;
+
+    /**
      * 接收者
      */
     private String receiverName;
@@ -23,12 +28,20 @@ public class Message {
     /**
      * 是否为私聊消息
      */
-    private String isPersonal;
+    private Boolean isPersonal;
 
     /**
      * 发送的消息
      */
     private String message;
 
+    /**
+     * 消息类型
+     */
+    private MessageType type;
+
+    public Message(String message){
+        this.message = message;
+    }
 
 }

@@ -13,11 +13,9 @@ import com.lite.utils.PasswordEncoder;
 import com.lite.utils.RedisCache;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.Objects;
 
 @Service
@@ -51,6 +49,7 @@ public class AuthServiceIml implements AuthService {
         //将当前用户存入Redis
         cache.setCacheObject(temp.getUserName(), new LoginUser(temp,ip));
 
+        //返回一个携带payload的token
         return new ResponseResult<>(LiteHttpExceptionStatus.LOGIN_OK.code(), LiteHttpExceptionStatus.LOGIN_OK.msg(), new Token(userToken));
     }
 
@@ -94,7 +93,7 @@ public class AuthServiceIml implements AuthService {
             Claims claims = JwtUtil.parseJWT(token);//尝试解析token
             String userName = claims.getSubject();
 
-            User user = cache.getCacheObject(userName);
+            LoginUser user = cache.getCacheObject(userName);
 
             if (!Objects.isNull(user)) {//如果缓存中的用户存在
                 result = cache.deleteObject(userName);//删除缓存中对应的用户
@@ -105,6 +104,7 @@ public class AuthServiceIml implements AuthService {
             throw new RuntimeException(LiteHttpExceptionStatus.NO_AUTH.msg());
         }
 
+        //根据是否删除成功判断返回值
         return new ResponseResult<>(
                 result ?
                         LiteHttpExceptionStatus.LOGOUT_OK.code() : LiteHttpExceptionStatus.LOGOUT_FAIL.code(),

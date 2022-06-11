@@ -5,6 +5,7 @@ import com.lite.dao.authDao.AuthMapper;
 import com.lite.entity.User;
 import com.lite.utils.AvatarUtils;
 import com.lite.utils.RedisCache;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 
+@Slf4j
 @SpringBootTest
 class LiteChatWebApplicationTests {
 
@@ -50,6 +52,7 @@ class LiteChatWebApplicationTests {
 
     @Test
     void test2(){
+        log.info("{}",1);
         System.out.println(AvatarUtils.getDefaultAvatar());
     }
 }

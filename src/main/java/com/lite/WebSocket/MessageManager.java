@@ -1,11 +1,13 @@
 package com.lite.WebSocket;
 
-import com.lite.entity.Message;
 import com.lite.utils.RedisCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -16,27 +18,36 @@ public class MessageManager {
      */
     private ConcurrentHashMap<String, WebSocketSession> WebSocketPool = new ConcurrentHashMap<>();
 
-    @Autowired
-    private RedisCache cache;
 
-    public void unicast(Message message){
-        //TODO 单播消息实现
-    }
-
-    public void broadcast(Message message){
+    /**
+     * 广播消息
+     * @param message
+     */
+    public void broadcast(TextMessage message){
         //TODO 广播消息实现
+
+        try {
+
+            for (Map.Entry<String,WebSocketSession> entry:WebSocketPool.entrySet()){
+                entry.getValue().sendMessage(message);
+            }
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+
     }
 
     public int getWebSocketSessionCount(){
         return this.WebSocketPool.size();
     }
 
-    public boolean addWebSocketSessionIntoPool(WebSocketSession webSocketSession){
-
-        return false;
+    public void addWebSocketSessionIntoPool(String key ,WebSocketSession val){
+        this.WebSocketPool.put(key,val);
     }
 
-    public boolean removeWebSocketSessionFromPool(WebSocketSession socketSession){
-        return false;
+    public void removeWebSocketSessionFromPool(String key){
+        this.WebSocketPool.remove(key);
     }
 }

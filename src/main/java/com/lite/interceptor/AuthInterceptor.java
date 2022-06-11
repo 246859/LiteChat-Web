@@ -33,7 +33,7 @@ public class AuthInterceptor implements HandlerInterceptor {
                 throw new RuntimeException(LiteHttpExceptionStatus.NO_AUTH.msg());
             }
 
-            if (authUtils.authIsValidUser(token,cache,request)){//校验是否为合法用户
+            if (!authUtils.authIsValidUser(token,cache,request)){//校验是否为合法用户
                 throw new RuntimeException(LiteHttpExceptionStatus.NO_AUTH.msg());
             }
 
