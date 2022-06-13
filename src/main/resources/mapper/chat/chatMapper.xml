@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lite.dao.chatDao.ChatMapper">
+
+    <resultMap id="UserResultMap" type="com.lite.entity.chat.Friend">
+        <result column="avatar" property="avatar"/>
+        <result column="user_name" property="userName"/>
+        <result column="nick_name" property="nickName"/>
+        <result column="gender" property="gender"/>
+        <result column="description" property="description"/>
+    </resultMap>
+
+    <resultMap id="GroupResultMap" type="com.lite.entity.chat.Group">
+        <result column="eid" property="eid"/>
+        <result column="group_id" property="groupId"/>
+        <result column="group_name" property="groupName"/>
+        <result column="group_description" property="description"/>
+        <result column="group_avatar" property="avatar"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <select id="getFriendList" parameterType="java.lang.String" resultMap="UserResultMap">
+        SELECT user_name,
+               nick_name,
+               avatar,
+               gender,
+               description
+        FROM user
+        WHERE eid
+            IN
+              (SELECT friend
+               FROM user_friend
+               WHERE user
+                         IN
+                     (SELECT eid
+                      FROM user
+                      WHERE user_name = #{userName}))
+        OR eid
+            IN
+              (SELECT user
+               FROM user_friend
+               WHERE friend
+                         IN
+                     (SELECT eid
+                      FROM user
+                      WHERE user_name =  #{userName}));
+    </select>
+    <select id="getGroupList" resultSets="com.lite.entity.chat.Group" parameterType="java.lang.String" resultType="com.lite.entity.chat.Group">
+        SELECT
+            group_id,
+            group_name,
+            group_avatar
+        FROM
+            `group`
+        WHERE
+                eid IN (
+                SELECT
+                    group_id
+                FROM
+                    group_user
+                WHERE
+                        user_id
+                        IN (SELECT eid FROM user WHERE user_name = #{userName}));
+    </select>
+    <select id="getFriend" resultType="com.lite.entity.chat.Friend" parameterType="java.lang.String">
+        SELECT user_name,
+               nick_name,
+               avatar,
+               gender,
+               description
+        FROM user
+        WHERE user_name = #{friendName}
+        AND (
+                    eid
+                    IN
+                    (SELECT friend
+                     FROM user_friend
+                     WHERE `user`
+                               IN
+                           (SELECT eid
+                            FROM user
+                            WHERE user_name = #{userName}))
+                OR
+                    eid
+                        IN
+                    (SELECT `user`
+                     FROM user_friend
+                     WHERE friend
+                               IN
+                           (SELECT eid
+                            FROM user
+                            WHERE user_name = #{userName}))
+            );
+    </select>
+    <select id="getGroup" resultType="com.lite.entity.chat.Group" parameterType="java.lang.String" resultMap="GroupResultMap">
+        SELECT g.eid,
+               g.group_id,
+               g.group_name,
+               g.group_description,
+               g.group_avatar,
+               u.user_name creator,
+               g.create_time
+        FROM `group` g
+                 JOIN group_user gu
+                      on g.eid = gu.group_id
+                 JOIN user u on gu.user_id = u.eid
+        WHERE g.group_id = #{groupId}
+          AND gu.role_id = 1
+    </select>
+    <select id="getGroupMember" resultType="com.lite.entity.chat.Member">
+        SELECT g.group_id, g.group_name, gu.role_id, u.avatar, u.user_name, u.nick_name
+        FROM `group` g
+                 JOIN group_user gu on g.eid = gu.group_id
+                 JOIN user u on u.eid = gu.user_id
+        where g.group_id = #{groupId};
+    </select>
+    <select id="getUserInfo" resultType="com.lite.entity.auth.User">
+        SELECT *
+        FROM `user`
+        WHERE user_name = #{userName}
+    </select>
+    <select id="getMember" resultType="com.lite.entity.chat.Member">
+        SELECT g.group_id, g.group_name,gu.role_id,u.avatar,u.user_name,u.nick_name
+        FROM `group` g
+                 JOIN group_user gu on g.eid = gu.group_id
+                 JOIN user u on u.eid = gu.user_id
+        where g.group_id = #{groupId} AND  u.user_name = #{userName};
+    </select>
+
+    <delete id="deleteFriend">
+        DELETE
+        FROM user_friend
+        WHERE (
+                            `user` IN (SELECT eid FROM user WHERE user_name = #{userName})
+                AND
+                            friend IN (SELECT eid FROM user WHERE user_name = #{friendUserName})
+            )
+           OR (
+                            `user` IN (SELECT eid FROM user WHERE user_name = #{friendUserName})
+                AND
+                            friend IN (SELECT eid FROM user WHERE user_name = #{userName})
+            )
+    </delete>
+    <delete id="deleteGroup">
+        DELETE FROM `group` where group_id = #{groupId}
+    </delete>
+    <delete id="quitGroup">
+        DELETE FROM group_user WHERE group_id = #{groupEid} AND user_id = #{userEid};
+    </delete>
+    <insert id="addFriend">
+        INSERT INTO user_friend (`user`, friend) value (#{userId},#{friendId})
+    </insert>
+    <insert id="createGroup" parameterType="com.lite.entity.chat.Group">
+        INSERT INTO `group`
+        (group_id, group_name, group_description, group_avatar, create_time)
+        VALUE
+        (#{groupId},#{groupName},#{description},#{avatar},#{createTime})
+    </insert>
+    <insert id="addGroup">
+        INSERT INTO group_user(group_id, user_id, role_id) value (#{groupEid},#{userEid},3)
+    </insert>
+
+</mapper>
