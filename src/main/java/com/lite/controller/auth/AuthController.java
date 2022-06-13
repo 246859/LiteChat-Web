@@ -1,11 +1,10 @@
-package com.lite.controller;
+package com.lite.controller.auth;
 
 import com.lite.dto.ResponseResult;
 import com.lite.dto.Token;
-import com.lite.entity.User;
+import com.lite.entity.auth.User;
 import com.lite.service.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

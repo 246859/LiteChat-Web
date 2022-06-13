@@ -25,6 +25,8 @@ public class ResponseResult<T> {
      */
     private T data;
 
+    private Boolean isSuccess;
+
     public ResponseResult(Integer code) {
         this.code = code;
     }

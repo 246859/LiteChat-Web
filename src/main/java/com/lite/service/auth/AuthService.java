@@ -2,8 +2,7 @@ package com.lite.service.auth;
 
 import com.lite.dto.ResponseResult;
 import com.lite.dto.Token;
-import com.lite.entity.User;
-import org.springframework.http.HttpRequest;
+import com.lite.entity.auth.User;
 
 import javax.servlet.http.HttpServletRequest;
 

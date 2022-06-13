@@ -1,6 +1,6 @@
 package com.lite.utils;
 
-import com.lite.entity.LoginUser;
+import com.lite.entity.auth.LoginUser;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.stereotype.Component;

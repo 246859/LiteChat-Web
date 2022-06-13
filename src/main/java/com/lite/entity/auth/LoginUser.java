@@ -1,4 +1,4 @@
-package com.lite.entity;
+package com.lite.entity.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.lite.entity;
+package com.lite.entity.chat;
 
 public enum MessageType {
     Raw_Text("文本消息"),

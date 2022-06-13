@@ -2,8 +2,9 @@ package com.lite;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lite.dao.authDao.AuthMapper;
-import com.lite.entity.User;
-import com.lite.utils.AvatarUtils;
+import com.lite.dao.chatDao.ChatMapper;
+import com.lite.entity.auth.User;
+import com.lite.service.chat.ChatService;
 import com.lite.utils.RedisCache;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -12,8 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.script.DigestUtils;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 
 @Slf4j
 @SpringBootTest
@@ -24,6 +23,12 @@ class LiteChatWebApplicationTests {
 
     @Autowired
     AuthMapper mapper;
+
+    @Autowired
+    ChatMapper chatMapper;
+
+    @Autowired
+    ChatService chatService;
     @Test
     void contextLoads() {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
@@ -52,7 +57,6 @@ class LiteChatWebApplicationTests {
 
     @Test
     void test2(){
-        log.info("{}",1);
-        System.out.println(AvatarUtils.getDefaultAvatar());
+        System.out.println(chatService.addFriend("wml", "pop"));
     }
 }

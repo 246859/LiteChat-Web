@@ -3,8 +3,8 @@ package com.lite.WebSocket.Service.iml;
 import com.alibaba.fastjson.JSON;
 import com.lite.WebSocket.MessageManager;
 import com.lite.WebSocket.Service.MessageService;
-import com.lite.entity.LoginUser;
-import com.lite.entity.Message;
+import com.lite.entity.auth.LoginUser;
+import com.lite.entity.chat.Message;
 import com.lite.utils.AuthUtils;
 import com.lite.utils.RedisCache;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
 import java.util.Objects;
 
 @Slf4j
@@ -77,7 +76,9 @@ public class MessageServiceIml implements MessageService {
                 //包装成TextMessage
                 TextMessage textMessage = new TextMessage(jsonMessage);
 
+                //转发消息
                 messageManager.broadcast(textMessage);
+
             }
         }catch (Exception e){
             e.printStackTrace();
