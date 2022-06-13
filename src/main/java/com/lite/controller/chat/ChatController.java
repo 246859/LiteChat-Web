@@ -30,7 +30,7 @@ public class ChatController {
     @GetMapping("/getGroups")
     public ResponseResult<List<Group>> getGroupList(@RequestParam String userName){
         //TODO 获取群聊列表
-        return null;
+        return service.getGroupList(userName);
     }
 
     /**
@@ -52,7 +52,7 @@ public class ChatController {
     @GetMapping("/getGroup")
     public ResponseResult<Group> getGroup(@RequestParam String groupId){
         //TODO 获取一个群聊
-        return null;
+        return service.getGroup(groupId);
     }
 
     /**
@@ -61,7 +61,7 @@ public class ChatController {
      * @param friendUserName
      * @return
      */
-    @PostMapping("/addFriend")
+    @PutMapping("/addFriend")
     public ResponseResult<Boolean> addFriend(@RequestParam String userName,@RequestParam String friendUserName){
         return service.addFriend(userName,friendUserName);
     }
@@ -71,10 +71,10 @@ public class ChatController {
      * @param groupId
      * @return
      */
-    @PostMapping("/addGroup")
-    public ResponseResult<Boolean> addGroup(@RequestParam String groupId){
+    @PutMapping("/addGroup")
+    public ResponseResult<Boolean> addGroup(@RequestParam String groupId,@RequestParam String userName){
         //TODO 添加一个群聊
-        return null;
+        return service.addGroup(groupId,userName);
     }
 
     /**
@@ -86,7 +86,7 @@ public class ChatController {
     @DeleteMapping("/deleteFriend")
     public ResponseResult<Boolean> deleteFriend(@RequestParam String userName,@RequestParam String friendUserName){
         //TODO 删除一个好友
-        return null;
+        return service.deleteFriend(userName,friendUserName);
     }
 
     /**
@@ -98,7 +98,7 @@ public class ChatController {
     @DeleteMapping("/deleteGroup")
     public ResponseResult<Boolean> deleteGroup(@RequestParam String userName,@RequestParam String groupId){
         //TODO 删除一个群聊
-        return null;
+        return service.deleteGroup(userName,groupId);
     }
 
     /**
@@ -110,7 +110,7 @@ public class ChatController {
     @GetMapping("/getGroupMembers")
     public ResponseResult<List<Member>> getGroupMembers(@RequestParam String groupId){
         //TODO 获取一个群聊的成员列表
-        return null;
+        return service.getGroupMembers(groupId);
     }
 
     /**
@@ -121,7 +121,7 @@ public class ChatController {
     @GetMapping("/getUserInfo")
     public ResponseResult<User> getUserInfo(@RequestParam String userName){
         //TODO 获取一个用户的详细信息
-        return null;
+        return service.getUserInfo(userName);
     }
 
 }
