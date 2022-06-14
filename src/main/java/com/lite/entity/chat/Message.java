@@ -13,22 +13,22 @@ public class Message {
     /**
      * 发送者
      */
-    private String senderName;
+    private String sender;
 
     /**
      * 发送者昵称
      */
-    private String sendNickName;
+    private String conversationName;
 
     /**
      * 接收者
      */
-    private String receiverName;
+    private String receiver;
 
     /**
-     * 是否为私聊消息
+     * 是否为群聊消息
      */
-    private Boolean isPersonal;
+    private Boolean isGroup;
 
     /**
      * 发送的消息
@@ -38,7 +38,7 @@ public class Message {
     /**
      * 消息类型
      */
-    private MessageType type;
+    private Integer code;
 
     public Message(String message){
         this.message = message;

@@ -1,5 +1,6 @@
 package com.lite.WebSocket;
 
+import com.lite.entity.chat.Message;
 import com.lite.utils.RedisCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,15 +24,16 @@ public class MessageManager {
      * 广播消息
      * @param message
      */
-    public void broadcast(TextMessage message){
+    public void broadcast(TextMessage message, Message packMessage){
         //TODO 广播消息实现
 
         try {
-
+            //消息广播时 广播给自己与发送者
             for (Map.Entry<String,WebSocketSession> entry:WebSocketPool.entrySet()){
-                entry.getValue().sendMessage(message);
+                if (entry.getKey().equals(packMessage.getReceiver()) || entry.getKey().equals(packMessage.getSender())){
+                    entry.getValue().sendMessage(message);
+                }
             }
-
         }catch (IOException e){
             e.printStackTrace();
         }
