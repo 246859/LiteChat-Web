@@ -61,7 +61,7 @@ public class ChatController {
      * @param friendUserName
      * @return
      */
-    @PutMapping("/addFriend")
+    @PostMapping("/addFriend")
     public ResponseResult<Boolean> addFriend(@RequestParam String userName,@RequestParam String friendUserName){
         return service.addFriend(userName,friendUserName);
     }
@@ -71,10 +71,21 @@ public class ChatController {
      * @param groupId
      * @return
      */
-    @PutMapping("/addGroup")
+    @PostMapping("/addGroup")
     public ResponseResult<Boolean> addGroup(@RequestParam String groupId,@RequestParam String userName){
         //TODO 添加一个群聊
         return service.addGroup(groupId,userName);
+    }
+
+    /**
+     * 创建一个群聊
+     * @param userName
+     * @param groupName
+     * @return
+     */
+    @PostMapping("/createGroup")
+    public ResponseResult<Boolean> createGroup(@RequestParam String userName,@RequestParam String groupName){
+        return service.createGroup(userName, groupName);
     }
 
     /**

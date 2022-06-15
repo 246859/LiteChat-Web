@@ -22,7 +22,7 @@ public interface ChatMapper {
 
     Integer createGroup(Group group);
 
-    Integer addGroup(Integer userEid,Integer groupEid);
+    Integer addGroup(Integer userEid,Integer groupEid,Integer roleId);
 
     Integer deleteFriend( String userName, String friendUserName);
 

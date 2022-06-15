@@ -1,5 +1,6 @@
 package com.lite.utils;
 
+import com.lite.dto.ResponseResult;
 import com.lite.entity.auth.LoginUser;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.server.ServerHttpRequest;
@@ -16,6 +17,7 @@ public class AuthUtils {
         LoginUser loginUser = null;
 
         userId = parseJWT(token);
+
 
         //在Redis中查询对应userID的用户
         if (Objects.isNull(userId) || Objects.isNull((loginUser = cache.getCacheObject(userId)))) {

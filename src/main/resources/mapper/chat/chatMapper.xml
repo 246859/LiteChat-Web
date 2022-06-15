@@ -159,7 +159,8 @@
         (#{groupId},#{groupName},#{description},#{avatar},#{createTime})
     </insert>
     <insert id="addGroup">
-        INSERT INTO group_user(group_id, user_id, role_id) value (#{groupEid},#{userEid},3)
+        INSERT INTO group_user(group_id, user_id, role_id) value (#{groupEid},#{userEid},#{roleId})
     </insert>
+
 
 </mapper>

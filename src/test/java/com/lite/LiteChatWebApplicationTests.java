@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.script.DigestUtils;
 
 import java.io.File;
+import java.util.UUID;
 
 @Slf4j
 @SpringBootTest
@@ -57,6 +58,6 @@ class LiteChatWebApplicationTests {
 
     @Test
     void test2(){
-        System.out.println(chatService.addFriend("wml", "pop"));
+        System.out.println(UUID.randomUUID().toString());
     }
 }

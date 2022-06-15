@@ -3,13 +3,17 @@ package com.lite.service.chat.iml;
 import com.lite.dao.authDao.AuthMapper;
 import com.lite.dao.chatDao.ChatMapper;
 import com.lite.dto.ResponseResult;
+import com.lite.entity.auth.LoginUser;
 import com.lite.entity.auth.User;
 import com.lite.entity.chat.Friend;
 import com.lite.entity.chat.Group;
+import com.lite.entity.chat.GroupRole;
 import com.lite.entity.chat.Member;
 import com.lite.service.chat.ChatService;
+import com.lite.utils.AuthUtils;
 import com.lite.utils.LiteHttpExceptionStatus;
 import com.lite.utils.RedisCache;
+import com.lite.utils.ResponseUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 public class ChatServiceIml implements ChatService {
@@ -203,7 +208,11 @@ public class ChatServiceIml implements ChatService {
      * @return
      */
     @Override
-    public ResponseResult<Boolean> addGroup(String groupId, String userName) {
+    public ResponseResult<Boolean> addGroup(String groupId, String userName) {//添加普通成员
+       return addGroup(groupId,userName,GroupRole.MEMBER.roleId());
+    }
+
+    public ResponseResult<Boolean> addGroup(String groupId, String userName,Integer roleId){
 
         ResponseResult<Boolean> responseResult = new ResponseResult<>();
 
@@ -211,12 +220,19 @@ public class ChatServiceIml implements ChatService {
 
         User user = chatMapper.getUserInfo(userName);
 
-        if (Objects.isNull(group) || Objects.isNull(user) || (chatMapper.addGroup(group.getEid(), user.getEid()) == 0)) {
-            responseResult.setIsSuccess(false);
-            responseResult.setCode(LiteHttpExceptionStatus.BAD_ARGS.code());
-            responseResult.setMsg("群聊添加失败");
+        if (Objects.isNull(group) || Objects.isNull(user)) {
+           return ResponseUtils.getWrongResponseResult("群聊不存在");
+        }
 
-            return responseResult;
+        if (!Objects.isNull(chatMapper.getMember(userName,groupId))){
+            return ResponseUtils.getWrongResponseResult("已在该群聊中");
+        }
+
+        //添加群聊的为普通成员
+        Integer impactCount = chatMapper.addGroup(user.getEid(),group.getEid(), roleId);
+
+        if (impactCount == 0 ){
+            return ResponseUtils.getWrongResponseResult("群聊创建失败");
         }
 
         responseResult.setMsg("群聊添加成功");
@@ -225,6 +241,38 @@ public class ChatServiceIml implements ChatService {
 
         return responseResult;
     }
+
+    /**
+     * 创建一个群聊
+     * @param userName
+     * @param groupName
+     * @return
+     */
+    @Override
+    public ResponseResult<Boolean> createGroup(String userName, String groupName) {
+
+        User user = chatMapper.getUserInfo(userName);//用户是否
+
+        if (Objects.isNull(user)){
+           return ResponseUtils.getWrongResponseResult("用户身份异常");
+        }
+
+        Group group = new Group();
+
+        String groupId = UUID.randomUUID().toString();
+
+        group.setGroupId(groupId.toString());//UUID生成群号
+        group.setGroupName(groupName);
+
+        Integer impactCount = chatMapper.createGroup(group);//创建群聊
+
+        if (impactCount == 0){
+            return ResponseUtils.getWrongResponseResult("群聊创建失败");
+        }
+
+        return addGroup(groupId,userName,GroupRole.CREATOR.roleId());//将创建者加入群聊
+    }
+
 
     /**
      * 退出一个群聊

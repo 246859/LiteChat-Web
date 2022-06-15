@@ -22,6 +22,7 @@ public interface ChatService {
 
     ResponseResult<Boolean> addGroup( String groupId,String userName);
 
+    ResponseResult<Boolean> createGroup(String userName,String groupName);
     ResponseResult<Boolean> quitGroup( String groupId,String userName);
 
     ResponseResult<Boolean> deleteFriend( String userName, String friendUserName);
