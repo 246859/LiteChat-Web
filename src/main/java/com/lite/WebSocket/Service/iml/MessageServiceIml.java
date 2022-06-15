@@ -4,10 +4,15 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.lite.WebSocket.MessageManager;
 import com.lite.WebSocket.Service.MessageService;
+import com.lite.dao.chatDao.ChatMapper;
 import com.lite.dto.WebSocket.WebSocketEvent;
-import com.lite.entity.auth.LoginUser;
+import com.lite.entity.auth.User;
+import com.lite.entity.chat.Group;
+import com.lite.entity.chat.Member;
 import com.lite.entity.chat.Message;
+import com.lite.service.chat.ChatService;
 import com.lite.utils.AuthUtils;
+import com.lite.utils.ChatUtils;
 import com.lite.utils.RedisCache;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +23,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -33,16 +39,20 @@ public class MessageServiceIml implements MessageService {
     @Autowired
     private RedisCache cache;
 
+    @Autowired
+    ChatService chatService;
+
     @Override
     public void afterConnected(WebSocketSession session) {
         //将token解析成用户名
         String token = session.getUri().getQuery();
-        String userName = authUtils.parseJWT(token);
+        User user = JSONObject.parseObject(authUtils.parseJWT(token), User.class);
+
 
         //将此session存入pool中
-        if (!Objects.isNull(userName)){
-            log.info("ws client is connected, remote address is : {}",session.getRemoteAddress().getHostString());
-            messageManager.addWebSocketSessionIntoPool(userName,session);
+        if (!Objects.isNull(user.getUserName())) {
+            log.info("ws client is connected, remote address is : {}", session.getRemoteAddress().getHostString());
+            messageManager.addWebSocketSessionIntoPool(user.getUserName(), session);
         }
     }
 
@@ -51,33 +61,35 @@ public class MessageServiceIml implements MessageService {
         try {
             //将token解析成用户名
             String token = session.getUri().getQuery();
-            String userName = authUtils.parseJWT(token);
+            String jwtPayload = authUtils.parseJWT(token);
 
             //将此session存入pool中
-            if (!Objects.isNull(userName)){
+            if (!Objects.isNull(jwtPayload)) {
 
                 String jsonPayload = (String) message.getPayload();
 
-                WebSocketEvent wsEvent = JSON.parseObject(jsonPayload,WebSocketEvent.class);
+                WebSocketEvent wsEvent = JSON.parseObject(jsonPayload, WebSocketEvent.class);
 
-                log.info("ws client:{} is sending message, message: {}",session.getRemoteAddress().getHostString(),jsonPayload);
+                log.info("ws client:{} is sending message, message: {}", session.getRemoteAddress().getHostString(), jsonPayload);
 
-                if (!Objects.isNull(wsEvent)){
+                if (!Objects.isNull(wsEvent)) {
 
-                    switch (wsEvent.getEvent()){
-                        case "CHAT_MESSAGE":{
-                            onChatMessage(userName,wsEvent);
-                        }break;
-                        case "INFO_MESSAGE":{
+                    switch (wsEvent.getEvent()) {
+                        case "CHAT_MESSAGE": {
+                            onChatMessage(jwtPayload, wsEvent);
+                        }
+                        break;
+                        case "INFO_MESSAGE": {
 
-                        }break;
+                        }
+                        break;
                     }
 
                 }
 
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -93,40 +105,58 @@ public class MessageServiceIml implements MessageService {
         String token = session.getUri().getQuery();
         String userName = authUtils.parseJWT(token);
 
-        if (!Objects.isNull(userName)){
-            log.info("ws client is closed , remote address is : {}",session.getRemoteAddress().getHostString());
+        if (!Objects.isNull(userName)) {
+            log.info("ws client is closed , remote address is : {}", session.getRemoteAddress().getHostString());
             messageManager.removeWebSocketSessionFromPool(userName);
         }
     }
 
     @Override
-    public void onChatMessage(String userName,WebSocketEvent wsEvent) {
+    public void onChatMessage(String jwtPayload, WebSocketEvent wsEvent) {
 
         try {
 
-                //转换为Message类
-                Message temp = JSON.toJavaObject((JSON) wsEvent.getPayload(), Message.class);
+            //转换成user类
+            User user = JSON.parseObject(jwtPayload, User.class);
 
-                //获取缓存的中登陆用户
-                LoginUser loginUser = cache.getCacheObject(userName);
+            //转换为Message类
+            Message message = JSON.toJavaObject((JSON) wsEvent.getPayload(), Message.class);
 
-                //存入对应的数据
-                temp.setConversationName(loginUser.getUser().getNickName());
-                temp.setSender(loginUser.getUser().getUserName());
+            //转换为JSON格式的消息
 
-                //存入payload
-                wsEvent.setPayload(temp);
 
-                //转换为JSON格式的消息
-                String jsonMessage = JSON.toJSONString(wsEvent);
-
+            if (!message.getIsGroup()) {//单播消息
                 //包装成TextMessage
+                String jsonMessage = JSON.toJSONString(wsEvent);
                 TextMessage textMessage = new TextMessage(jsonMessage);
 
-                //转发消息
-                messageManager.broadcast(textMessage,temp);
+                chatService.insertPrivateMsg(message);
+                messageManager.unicast(textMessage, message);
+            } else {//群聊广播消息
 
-        }catch (Exception e){
+                String groupId = message.getGroupId();
+                Group group = chatService.getGroup(groupId).getData();
+
+
+                //重新写入会话名称
+                message.setConversationName(group.getGroupName());
+                message.setGroupId(groupId);
+
+                wsEvent.setPayload(message);
+
+                //包装成TextMessage
+                String jsonMessage = JSON.toJSONString(wsEvent);
+                TextMessage textMessage = new TextMessage(jsonMessage);
+
+                //查询群聊成员
+                List<Member> memberList = chatService.getGroupMembers(groupId).getData();
+                List<String> userNameList = ChatUtils.getUserNameList(memberList);
+
+                chatService.insertGroupMsg(message);
+                messageManager.broadcast(textMessage, message, userNameList);
+            }
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -5,20 +5,15 @@ import com.lite.dao.chatDao.ChatMapper;
 import com.lite.dto.ResponseResult;
 import com.lite.entity.auth.LoginUser;
 import com.lite.entity.auth.User;
-import com.lite.entity.chat.Friend;
-import com.lite.entity.chat.Group;
-import com.lite.entity.chat.GroupRole;
-import com.lite.entity.chat.Member;
+import com.lite.entity.chat.*;
 import com.lite.service.chat.ChatService;
-import com.lite.utils.AuthUtils;
-import com.lite.utils.LiteHttpExceptionStatus;
-import com.lite.utils.RedisCache;
-import com.lite.utils.ResponseUtils;
+import com.lite.utils.*;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -427,5 +422,93 @@ public class ChatServiceIml implements ChatService {
         responseResult.setMsg("获取用户信息成功");
 
         return responseResult;
+    }
+
+    @Override
+    public ResponseResult<Boolean> insertPrivateMsg(Message message) {
+
+        PrivateMessage privateMessage = new PrivateMessage();
+
+        //获取用户名
+        String userName = message.getSender();
+        String friendName = message.getReceiver();
+
+        //通过用户名获取eid
+        User user = chatMapper.getUserInfo(userName);
+        User friend = chatMapper.getUserInfo(friendName);
+
+        if (Objects.isNull(user) || Objects.isNull(friend)){
+            return ResponseUtils.getWrongResponseResult("无效的信息");
+        }
+
+        //装填privateMessage
+        privateMessage.setSenderEid(user.getEid());
+        privateMessage.setReceiverEid(friend.getEid());
+        privateMessage.setChatMsg(message.getMessage());
+        privateMessage.setSendTime(LocalDateTime.now().toString());
+        privateMessage.setSendTime(ChatUtils.getTimeFormatNow());
+        privateMessage.setMsgType(message.getMessageType());
+
+        //记录到数据库
+        Integer impactCount = chatMapper.insertPrivateMessage(privateMessage);
+
+
+        if (impactCount == 0){
+            return ResponseUtils.getWrongResponseResult("记录聊天信息失败");
+        }
+
+        ResponseResult<Boolean> responseResult = new ResponseResult<>();
+        responseResult.setCode(LiteHttpExceptionStatus.OK.code());
+        responseResult.setMsg("私聊信息记录成功");
+        responseResult.setIsSuccess(true);
+
+        return null;
+    }
+
+    @Override
+    public ResponseResult<Boolean> insertGroupMsg(Message message) {
+
+        GroupMessage groupMessage = new GroupMessage();
+
+        //解析用户名与群名
+        String userName = message.getSender();
+        String groupId = message.getGroupId();
+
+        //查询数据库后包装类
+        User user = chatMapper.getUserInfo(userName);
+        Group group = chatMapper.getSimpleGroup(groupId);
+
+        if (Objects.isNull(user) || Objects.isNull(group)){
+            return ResponseUtils.getWrongResponseResult("无效的聊天信息");
+        }
+
+        groupMessage.setGroupMsg(message.getMessage());
+        groupMessage.setGroupEid(group.getEid());
+        groupMessage.setSenderEid(user.getEid());
+        groupMessage.setSendTime(ChatUtils.getTimeFormatNow());
+        groupMessage.setMsgType(message.getMessageType());
+
+        Integer impactCount = chatMapper.insertGroupMessage(groupMessage);
+
+        if (impactCount == 0 ){
+            return ResponseUtils.getWrongResponseResult("群聊信息记录失败");
+        }
+
+        ResponseResult<Boolean> responseResult = new ResponseResult<>();
+        responseResult.setCode(LiteHttpExceptionStatus.OK.code());
+        responseResult.setMsg("群聊信息记录成功");
+        responseResult.setIsSuccess(true);
+
+        return null;
+    }
+
+    @Override
+    public ResponseResult<List<Message>> getPrivateMessage(String userName, String friendName) {
+        return null;
+    }
+
+    @Override
+    public ResponseResult<List<Message>> getGroupMessage(String groupId) {
+        return null;
     }
 }

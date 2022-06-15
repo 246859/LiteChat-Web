@@ -1,5 +1,6 @@
 package com.lite.WebSocket;
 
+import com.lite.entity.chat.Member;
 import com.lite.entity.chat.Message;
 import com.lite.utils.RedisCache;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,12 +28,13 @@ public class MessageManager {
      * 广播消息
      * @param message
      */
-    public void broadcast(TextMessage message, Message packMessage){
-        //TODO 广播消息实现
+    public void unicast(TextMessage message, Message packMessage){
+        //TODO 单播消息实现
 
         try {
             //消息广播时 不转发给自己
             for (Map.Entry<String,WebSocketSession> entry:WebSocketPool.entrySet()){
+
                 String receiver = packMessage.getReceiver();
                 String sender = packMessage.getSender();
                 String userName = entry.getKey();
@@ -44,10 +47,22 @@ public class MessageManager {
         }catch (IOException e){
             e.printStackTrace();
         }
-
-
     }
 
+    public void broadcast(TextMessage message, Message packMessage, List<String> memberList){
+        try {
+            for (Map.Entry<String,WebSocketSession> entry:WebSocketPool.entrySet()){
+                String sender = packMessage.getSender();
+                String userName = entry.getKey();
+
+                if (memberList.contains(userName) && !userName.equals(sender)){
+                    entry.getValue().sendMessage(message);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
     public int getWebSocketSessionCount(){
         return this.WebSocketPool.size();
     }

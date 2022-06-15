@@ -1,9 +1,7 @@
 package com.lite.dao.chatDao;
 
 import com.lite.entity.auth.User;
-import com.lite.entity.chat.Friend;
-import com.lite.entity.chat.Group;
-import com.lite.entity.chat.Member;
+import com.lite.entity.chat.*;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -37,4 +35,12 @@ public interface ChatMapper {
     User getUserInfo(String userName);
 
     Member getMember(String userName,String groupId);
+
+    Integer insertGroupMessage(GroupMessage message);
+
+    Integer insertPrivateMessage(PrivateMessage message);
+
+    List<Message> getGroupMessageList(String groupId,Integer limit);
+
+    List<Message> getPrivateMessageList(String userName,String friendUserName,Integer limit);
 }

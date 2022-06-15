@@ -134,6 +134,8 @@
     <select id="getSimpleGroup" resultType="com.lite.entity.chat.Group" parameterType="java.lang.String">
         SELECT * FROM `group` WHERE group_id = #{groupId}
     </select>
+    <select id="getPrivateMessageList" resultType="com.lite.entity.chat.Message"></select>
+    <select id="getGroupMessageList" resultType="com.lite.entity.chat.Message"></select>
 
     <delete id="deleteFriend">
         DELETE
@@ -167,6 +169,17 @@
     <insert id="addGroup">
         INSERT INTO group_user(group_id, user_id, role_id) value (#{groupEid},#{userEid},#{roleId})
     </insert>
-
+    <insert id="insertPrivateMessage" parameterType="com.lite.entity.chat.PrivateMessage">
+        INSERT INTO private_chat_record
+            (sender, receiver, chat_msg, send_time, msg_type)
+        value
+            (#{senderEid},#{receiverEid},#{chatMsg},#{sendTime},#{msgType});
+    </insert>
+    <insert id="insertGroupMessage" parameterType="com.lite.entity.chat.GroupMessage">
+        INSERT INTO group_chat_record
+            (group_eid, group_msg, sender, send_time, msg_type)
+            value
+            (#{groupEid},#{groupMsg},#{senderEid},#{sendTime},#{msgType})
+    </insert>
 
 </mapper>

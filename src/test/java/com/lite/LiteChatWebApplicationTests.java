@@ -5,6 +5,7 @@ import com.lite.dao.authDao.AuthMapper;
 import com.lite.dao.chatDao.ChatMapper;
 import com.lite.entity.auth.User;
 import com.lite.service.chat.ChatService;
+import com.lite.utils.ChatUtils;
 import com.lite.utils.RedisCache;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -59,5 +60,10 @@ class LiteChatWebApplicationTests {
     @Test
     void test2(){
         chatService.createGroup("stranger","半岛小镇");
+    }
+
+    @Test
+    void test3(){
+        System.out.println(ChatUtils.getTimeFormatNow());
     }
 }

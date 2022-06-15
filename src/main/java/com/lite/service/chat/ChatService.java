@@ -5,6 +5,7 @@ import com.lite.entity.auth.User;
 import com.lite.entity.chat.Friend;
 import com.lite.entity.chat.Group;
 import com.lite.entity.chat.Member;
+import com.lite.entity.chat.Message;
 
 import java.util.List;
 
@@ -32,4 +33,12 @@ public interface ChatService {
     ResponseResult<List<Member>> getGroupMembers(String groupId);
 
     ResponseResult<User> getUserInfo(String userName);
+
+    ResponseResult<Boolean> insertPrivateMsg(Message message);
+
+    ResponseResult<Boolean> insertGroupMsg(Message message);
+
+    ResponseResult<List<Message>> getPrivateMessage(String userName,String friendName);
+
+    ResponseResult<List<Message>> getGroupMessage(String groupId);
 }

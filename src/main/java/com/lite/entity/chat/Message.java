@@ -16,6 +16,11 @@ public class Message {
     private String sender;
 
     /**
+     * 发送者的昵称
+     */
+    private String senderNickname;
+
+    /**
      * 发送者昵称
      */
     private String conversationName;
@@ -31,6 +36,10 @@ public class Message {
     private Boolean isGroup;
 
     /**
+     * 群聊ID
+     */
+    private String groupId;
+    /**
      * 发送的消息
      */
     private String message;
@@ -39,6 +48,12 @@ public class Message {
      * 消息类型
      */
     private Integer code;
+
+    private String avatar;
+
+    private String messageType;
+
+    private String sendTime;
 
     public Message(String message){
         this.message = message;
