@@ -1,5 +1,6 @@
 package com.lite.service.auth.iml;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lite.dao.authDao.AuthMapper;
 import com.lite.dto.ResponseResult;
@@ -43,8 +44,14 @@ public class AuthServiceIml implements AuthService {
             return new ResponseResult<>(LiteHttpExceptionStatus.LOGIN_FAIL.code(), LiteHttpExceptionStatus.LOGIN_FAIL.msg());
         }
 
+        JSONObject jsonObject =new JSONObject();
+        jsonObject.put("userName",temp.getUserName());
+        jsonObject.put("nickName",temp.getNickName());
+
+        String jsonString = jsonObject.toJSONString();
+
         //如果成功则返回用户token
-        String userToken = JwtUtil.createJWT(temp.getUserName());
+        String userToken = JwtUtil.createJWT(jsonString);
 
         //将当前用户存入Redis
         cache.setCacheObject(temp.getUserName(), new LoginUser(temp,ip));

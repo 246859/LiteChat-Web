@@ -2,6 +2,7 @@ package com.lite.WebSocket;
 
 import com.lite.entity.chat.Message;
 import com.lite.utils.RedisCache;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Component
 public class MessageManager {
 
@@ -28,9 +30,14 @@ public class MessageManager {
         //TODO 广播消息实现
 
         try {
-            //消息广播时 广播给自己与发送者
+            //消息广播时 不转发给自己
             for (Map.Entry<String,WebSocketSession> entry:WebSocketPool.entrySet()){
-                if (entry.getKey().equals(packMessage.getReceiver()) || entry.getKey().equals(packMessage.getSender())){
+                String receiver = packMessage.getReceiver();
+                String sender = packMessage.getSender();
+                String userName = entry.getKey();
+
+                if (userName.equals(receiver) && !userName.equals(sender) ){
+                    log.info("来自 {} 的消息转发给了 {}",packMessage.getSender(),packMessage.getReceiver());
                     entry.getValue().sendMessage(message);
                 }
             }

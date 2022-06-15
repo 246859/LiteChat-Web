@@ -109,6 +109,9 @@
         WHERE g.group_id = #{groupId}
           AND gu.role_id = 1
     </select>
+
+
+
     <select id="getGroupMember" resultType="com.lite.entity.chat.Member">
         SELECT g.group_id, g.group_name, gu.role_id, u.avatar, u.user_name, u.nick_name
         FROM `group` g
@@ -127,6 +130,9 @@
                  JOIN group_user gu on g.eid = gu.group_id
                  JOIN user u on u.eid = gu.user_id
         where g.group_id = #{groupId} AND  u.user_name = #{userName};
+    </select>
+    <select id="getSimpleGroup" resultType="com.lite.entity.chat.Group" parameterType="java.lang.String">
+        SELECT * FROM `group` WHERE group_id = #{groupId}
     </select>
 
     <delete id="deleteFriend">

@@ -216,7 +216,7 @@ public class ChatServiceIml implements ChatService {
 
         ResponseResult<Boolean> responseResult = new ResponseResult<>();
 
-        Group group = chatMapper.getGroup(groupId);
+        Group group = chatMapper.getSimpleGroup(groupId);
 
         User user = chatMapper.getUserInfo(userName);
 
@@ -291,10 +291,7 @@ public class ChatServiceIml implements ChatService {
         User user = chatMapper.getUserInfo(userName);
 
         if (Objects.isNull(group) || Objects.isNull(user) || (chatMapper.quitGroup(group.getEid(), user.getEid()) == 0)) {
-            responseResult.setIsSuccess(false);
-            responseResult.setCode(LiteHttpExceptionStatus.BAD_ARGS.code());
-            responseResult.setMsg("群聊退出失败");
-
+            ResponseUtils.getWrongResponseResult("群聊退出失败");
             return responseResult;
         }
 
@@ -346,15 +343,22 @@ public class ChatServiceIml implements ChatService {
 
         ResponseResult<Boolean> responseResult = new ResponseResult<>();
 
+        Member member = chatMapper.getMember(userName,groupId);
+
+        if (Objects.isNull(member)){
+            return ResponseUtils.getWrongResponseResult("用户身份异常");
+        }
+
+        Integer roleId = member.getRoleId();
+
+        if (!roleId.equals(GroupRole.CREATOR.roleId())){//不是群主
+            return quitGroup(groupId,userName);
+        }
+
         if (Objects.isNull(cache.getCacheObject(userName)) ||
                 Objects.isNull(chatMapper.getUserInfo(userName)) ||
                 (chatMapper.deleteGroup(groupId) == 0)) {
-
-            responseResult.setIsSuccess(false);
-            responseResult.setCode(LiteHttpExceptionStatus.BAD_REQUEST.code());
-            responseResult.setMsg("群聊解散失败");
-
-            return responseResult;
+            return ResponseUtils.getWrongResponseResult("群聊解散失败");
         }
 
         responseResult.setMsg("群聊解散成功");

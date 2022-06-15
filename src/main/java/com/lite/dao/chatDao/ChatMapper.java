@@ -18,6 +18,8 @@ public interface ChatMapper {
 
     Group getGroup( String groupId);
 
+    Group getSimpleGroup(String groupId);
+
     Integer addFriend(Integer userId, Integer friendId);
 
     Integer createGroup(Group group);

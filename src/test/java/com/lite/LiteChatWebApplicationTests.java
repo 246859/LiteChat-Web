@@ -58,6 +58,6 @@ class LiteChatWebApplicationTests {
 
     @Test
     void test2(){
-        System.out.println(UUID.randomUUID().toString());
+        chatService.createGroup("stranger","半岛小镇");
     }
 }

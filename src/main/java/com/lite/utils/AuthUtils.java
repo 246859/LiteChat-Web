@@ -1,7 +1,9 @@
 package com.lite.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.lite.dto.ResponseResult;
 import com.lite.entity.auth.LoginUser;
+import com.lite.entity.auth.User;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -13,14 +15,14 @@ import java.util.Objects;
 public class AuthUtils {
     public LoginUser authIsValidUser(String token, RedisCache cache) throws RuntimeException {
         //尝试解析Token
-        String userId = null;
+        User user = null;
         LoginUser loginUser = null;
 
-        userId = parseJWT(token);
+        user = JSON.parseObject(parseJWT(token), User.class);
 
 
-        //在Redis中查询对应userID的用户
-        if (Objects.isNull(userId) || Objects.isNull((loginUser = cache.getCacheObject(userId)))) {
+        //在Redis中查询对应userName的用户
+        if (Objects.isNull(user.getUserName()) || Objects.isNull((loginUser = cache.getCacheObject(user.getUserName())))) {
             return null;
         }
 
