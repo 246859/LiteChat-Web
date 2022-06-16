@@ -14,7 +14,6 @@ spring:
         max-idle: 20 # 最大空闲连接
         min-idle: 5 #最小空闲连接
         max-wait: 12000 #连接等待时间
-
   devtools:
     restart:
       enabled: true

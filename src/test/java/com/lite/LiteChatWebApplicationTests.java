@@ -11,9 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.script.DigestUtils;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ResourceUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
@@ -69,9 +73,14 @@ class LiteChatWebApplicationTests {
     }
 
     @Test
-    void test4(){
+    void test4() throws IOException {
 //        System.out.println(chatService.getGroupMessage("61a3579f-39c8-4fc8-b4ed-f6e5ccd520f3", 0));
-        System.out.println(chatService.getPrivateMessage("stranger","hsy",0));
+//        System.out.println(chatService.getPrivateMessage("stranger","hsy",0));
+//        String aa = "aa.txt";
+//        System.out.println(aa.substring(aa.lastIndexOf(".")));
+        System.out.println();
+        ClassPathResource classPathResource = new ClassPathResource("static/file/test.txt");
+        System.out.println(classPathResource.getURL().getPath());
     }
 
 }

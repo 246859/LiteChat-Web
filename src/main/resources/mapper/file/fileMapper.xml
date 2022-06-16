@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lite.dao.fileDao.FileMapper">
+
+    <insert id="recordAttachment" parameterType="com.lite.entity.file.Attachment">
+        INSERT INTO `attachment`
+            (uploader,fileName,originalName,`path`)
+        value
+            (#{uploader},#{fileName},#{originalName},#{path})
+    </insert>
+    <select id="getOriginalName" resultType="java.lang.String" parameterType="java.lang.String">
+        SELECT originalName FROM attachment WHERE fileName = #{newFileName}
+    </select>
+
+
+</mapper>

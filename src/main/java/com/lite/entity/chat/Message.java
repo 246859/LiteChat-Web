@@ -55,6 +55,8 @@ public class Message {
 
     private String sendTime;
 
+    private String fileName;
+
     public Message(String message){
         this.message = message;
     }
