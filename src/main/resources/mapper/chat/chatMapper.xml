@@ -157,7 +157,7 @@
                 AND f.user_name = #{userName}
             )
         ORDER BY send_time desc
-            LIMIT #{limit};
+            LIMIT #{start},#{offset};
     </select>
     <select id="getGroupMessageList" resultType="com.lite.entity.chat.Message">
         SELECT u.user_name as `sender`,
@@ -175,7 +175,7 @@
                  JOIN user u on u.eid = gcr.sender
         WHERE g.group_id = #{groupId}
         ORDER BY gcr.send_time desc
-        LIMIT #{limit};
+        LIMIT #{start},#{offset};
     </select>
 
     <delete id="deleteFriend">

@@ -38,7 +38,7 @@ public interface ChatService {
 
     ResponseResult<Boolean> insertGroupMsg(Message message);
 
-    ResponseResult<List<Message>> getPrivateMessage(String userName,String friendName);
+    ResponseResult<List<Message>> getPrivateMessage(String userName,String friendName,Integer page);
 
-    ResponseResult<List<Message>> getGroupMessage(String groupId);
+    ResponseResult<List<Message>> getGroupMessage(String groupId,Integer page);
 }

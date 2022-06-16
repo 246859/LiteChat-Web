@@ -15,14 +15,16 @@ import java.util.Objects;
 public class AuthUtils {
     public LoginUser authIsValidUser(String token, RedisCache cache) throws RuntimeException {
         //尝试解析Token
-        User user = null;
-        LoginUser loginUser = null;
+        User user = JSON.parseObject(parseJWT(token), User.class);
 
-        user = JSON.parseObject(parseJWT(token), User.class);
+        if (Objects.isNull(user)){
+            return null;
+        }
 
+        LoginUser loginUser = cache.getCacheObject(user.getUserName());
 
         //在Redis中查询对应userName的用户
-        if (Objects.isNull(user.getUserName()) || Objects.isNull((loginUser = cache.getCacheObject(user.getUserName())))) {
+        if (Objects.isNull(loginUser)) {
             return null;
         }
 

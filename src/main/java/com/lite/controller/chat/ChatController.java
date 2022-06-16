@@ -143,13 +143,13 @@ public class ChatController {
      * @return
      */
     @GetMapping("/getPrivateMsg")
-    public ResponseResult<List<Message>> getPrivateMsg(@RequestParam String userName,@RequestParam String friendName){
-        return service.getPrivateMessage(userName,friendName);
+    public ResponseResult<List<Message>> getPrivateMsg(@RequestParam String userName,@RequestParam String friendName,@RequestParam Integer page){
+        return service.getPrivateMessage(userName,friendName,page);
     }
 
     @GetMapping("/getGroupMsg")
-    public ResponseResult<List<Message>> getGroupMsg(@RequestParam String groupId){
-        return service.getGroupMessage(groupId);
+    public ResponseResult<List<Message>> getGroupMsg(@RequestParam String groupId,@RequestParam Integer page){
+        return service.getGroupMessage(groupId,page);
     }
 
 }

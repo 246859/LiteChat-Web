@@ -40,7 +40,7 @@ public interface ChatMapper {
 
     Integer insertPrivateMessage(PrivateMessage message);
 
-    List<Message> getGroupMessageList(String groupId,Integer limit);
+    List<Message> getGroupMessageList(String groupId,Integer start,Integer offset);
 
-    List<Message> getPrivateMessageList(String userName,String friendUserName,Integer limit);
+    List<Message> getPrivateMessageList(String userName,String friendUserName,Integer start,Integer offset);
 }

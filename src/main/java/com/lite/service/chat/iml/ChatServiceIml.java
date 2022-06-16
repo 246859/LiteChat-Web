@@ -382,6 +382,8 @@ public class ChatServiceIml implements ChatService {
         }
 
         list.addAll(chatMapper.getGroupMember(groupId));
+        //根据角色ID排序
+        list.sort(Comparator.comparing(Member::getRoleId));
 
         responseResult.setCode(LiteHttpExceptionStatus.OK.code());
         responseResult.setData(list);
@@ -499,18 +501,19 @@ public class ChatServiceIml implements ChatService {
     }
 
     @Override
-    public ResponseResult<List<Message>> getPrivateMessage(String userName, String friendName) {
+    public ResponseResult<List<Message>> getPrivateMessage(String userName, String friendName,Integer page) {
 
         User user = chatMapper.getUserInfo(userName);
         User friend = chatMapper.getUserInfo(friendName);
 
         //参数合法性校验
         if (Objects.isNull(user) || Objects.isNull(friend)){
-            return ResponseUtils.getWrongResponseResult("无效的用户名");
+            return ResponseUtils.getWrongResponseResult("无效的参数");
         }
 
+        Integer count = page * 10;
         //查询聊天信息
-        List<Message> messageList = new ArrayList<>(chatMapper.getPrivateMessageList(userName,friendName,10));
+        List<Message> messageList = new ArrayList<>(chatMapper.getPrivateMessageList(userName,friendName,count,10));
         Collections.reverse(messageList);
 
         ResponseResult<List<Message>> responseResult = new ResponseResult<>();
@@ -523,16 +526,18 @@ public class ChatServiceIml implements ChatService {
     }
 
     @Override
-    public ResponseResult<List<Message>> getGroupMessage(String groupId) {
+    public ResponseResult<List<Message>> getGroupMessage(String groupId,Integer page) {
 
 
         Group group = chatMapper.getSimpleGroup(groupId);
         //检验群聊是否存在
-        if (Objects.isNull(group)){
-            return ResponseUtils.getWrongResponseResult("无效的群聊ID");
+        if (Objects.isNull(group) || page < 0){
+            return ResponseUtils.getWrongResponseResult("无效的参数");
         }
 
-        List<Message> messageList = new ArrayList<>(chatMapper.getGroupMessageList(groupId, 10));
+        Integer count = page * 10;
+
+        List<Message> messageList = new ArrayList<>(chatMapper.getGroupMessageList(groupId, count,10));
         //反转列表
         Collections.reverse(messageList);
 
