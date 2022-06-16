@@ -19,7 +19,7 @@ public class ChatUtils {
 
     public static String getTimeFormatNow(){
         LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS");
         return now.format(formatter);
     }
 

@@ -5,6 +5,7 @@ import com.lite.entity.auth.User;
 import com.lite.entity.chat.Friend;
 import com.lite.entity.chat.Group;
 import com.lite.entity.chat.Member;
+import com.lite.entity.chat.Message;
 import com.lite.service.chat.ChatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,6 +134,22 @@ public class ChatController {
     public ResponseResult<User> getUserInfo(@RequestParam String userName){
         //TODO 获取一个用户的详细信息
         return service.getUserInfo(userName);
+    }
+
+    /**
+     * 获取倒数10条私聊信息
+     * @param userName
+     * @param friendName
+     * @return
+     */
+    @GetMapping("/getPrivateMsg")
+    public ResponseResult<List<Message>> getPrivateMsg(@RequestParam String userName,@RequestParam String friendName){
+        return service.getPrivateMessage(userName,friendName);
+    }
+
+    @GetMapping("/getGroupMsg")
+    public ResponseResult<List<Message>> getGroupMsg(@RequestParam String groupId){
+        return service.getGroupMessage(groupId);
     }
 
 }

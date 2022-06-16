@@ -14,10 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class ChatServiceIml implements ChatService {
@@ -445,8 +442,7 @@ public class ChatServiceIml implements ChatService {
         privateMessage.setSenderEid(user.getEid());
         privateMessage.setReceiverEid(friend.getEid());
         privateMessage.setChatMsg(message.getMessage());
-        privateMessage.setSendTime(LocalDateTime.now().toString());
-        privateMessage.setSendTime(ChatUtils.getTimeFormatNow());
+        privateMessage.setSendTime(message.getSendTime());
         privateMessage.setMsgType(message.getMessageType());
 
         //记录到数据库
@@ -485,7 +481,7 @@ public class ChatServiceIml implements ChatService {
         groupMessage.setGroupMsg(message.getMessage());
         groupMessage.setGroupEid(group.getEid());
         groupMessage.setSenderEid(user.getEid());
-        groupMessage.setSendTime(ChatUtils.getTimeFormatNow());
+        groupMessage.setSendTime(message.getSendTime());
         groupMessage.setMsgType(message.getMessageType());
 
         Integer impactCount = chatMapper.insertGroupMessage(groupMessage);
@@ -504,11 +500,48 @@ public class ChatServiceIml implements ChatService {
 
     @Override
     public ResponseResult<List<Message>> getPrivateMessage(String userName, String friendName) {
-        return null;
+
+        User user = chatMapper.getUserInfo(userName);
+        User friend = chatMapper.getUserInfo(friendName);
+
+        //参数合法性校验
+        if (Objects.isNull(user) || Objects.isNull(friend)){
+            return ResponseUtils.getWrongResponseResult("无效的用户名");
+        }
+
+        //查询聊天信息
+        List<Message> messageList = new ArrayList<>(chatMapper.getPrivateMessageList(userName,friendName,10));
+        Collections.reverse(messageList);
+
+        ResponseResult<List<Message>> responseResult = new ResponseResult<>();
+        responseResult.setIsSuccess(true);
+        responseResult.setData(messageList);
+        responseResult.setCode(LiteHttpExceptionStatus.OK.code());
+        responseResult.setMsg("10条私聊信息获取成功");
+
+        return responseResult;
     }
 
     @Override
     public ResponseResult<List<Message>> getGroupMessage(String groupId) {
-        return null;
+
+
+        Group group = chatMapper.getSimpleGroup(groupId);
+        //检验群聊是否存在
+        if (Objects.isNull(group)){
+            return ResponseUtils.getWrongResponseResult("无效的群聊ID");
+        }
+
+        List<Message> messageList = new ArrayList<>(chatMapper.getGroupMessageList(groupId, 10));
+        //反转列表
+        Collections.reverse(messageList);
+
+        ResponseResult<List<Message>> responseResult = new ResponseResult<>();
+        responseResult.setIsSuccess(true);
+        responseResult.setData(messageList);
+        responseResult.setCode(LiteHttpExceptionStatus.OK.code());
+        responseResult.setMsg("获取群聊倒数10条记录成功");
+
+        return responseResult;
     }
 }

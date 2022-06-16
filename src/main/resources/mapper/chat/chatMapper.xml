@@ -134,8 +134,49 @@
     <select id="getSimpleGroup" resultType="com.lite.entity.chat.Group" parameterType="java.lang.String">
         SELECT * FROM `group` WHERE group_id = #{groupId}
     </select>
-    <select id="getPrivateMessageList" resultType="com.lite.entity.chat.Message"></select>
-    <select id="getGroupMessageList" resultType="com.lite.entity.chat.Message"></select>
+    <select id="getPrivateMessageList" resultType="com.lite.entity.chat.Message">
+        SELECT u.user_name    as `sender`,
+               u.nick_name       senderNickname,
+               u.nick_name       conversationName,
+               f.user_name    as `receiver`,
+               pcr.chat_msg   as message,
+               u.avatar       as `avatar`,
+               pcr.msg_type      messageType,
+               pcr.send_time     sendTime,
+               (SELECT FALSE) as isGroup
+        FROM user u
+                 JOIN private_chat_record pcr on u.eid = pcr.sender
+                 JOIN user f on f.eid = pcr.receiver
+        WHERE (
+                    u.user_name = #{userName}
+                AND
+                    f.user_name = #{friendUserName}
+            )
+           OR (
+                    u.user_name = #{friendUserName}
+                AND f.user_name = #{userName}
+            )
+        ORDER BY send_time desc
+            LIMIT #{limit};
+    </select>
+    <select id="getGroupMessageList" resultType="com.lite.entity.chat.Message">
+        SELECT u.user_name as `sender`,
+               u.nick_name    senderNickname,
+               g.group_name   conversationName,
+               g.group_id     receiver,
+               g.group_id     groupId,
+               gcr.group_msg  message,
+               u.avatar    as `avatar`,
+               gcr.msg_type   messageType,
+               gcr.send_time  sendTime,
+               (SELECT TRUE) as isGroup
+        FROM group_chat_record gcr
+                 JOIN `group` g on g.eid = gcr.group_eid
+                 JOIN user u on u.eid = gcr.sender
+        WHERE g.group_id = #{groupId}
+        ORDER BY gcr.send_time desc
+        LIMIT #{limit};
+    </select>
 
     <delete id="deleteFriend">
         DELETE

@@ -121,12 +121,15 @@ public class MessageServiceIml implements MessageService {
 
             //转换为Message类
             Message message = JSON.toJavaObject((JSON) wsEvent.getPayload(), Message.class);
+            //发送时间
+            message.setSendTime(ChatUtils.getTimeFormatNow());
 
             //转换为JSON格式的消息
 
 
             if (!message.getIsGroup()) {//单播消息
                 //包装成TextMessage
+                wsEvent.setPayload(message);
                 String jsonMessage = JSON.toJSONString(wsEvent);
                 TextMessage textMessage = new TextMessage(jsonMessage);
 

@@ -14,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.script.DigestUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.UUID;
 
 @Slf4j
@@ -64,6 +66,12 @@ class LiteChatWebApplicationTests {
 
     @Test
     void test3(){
-        System.out.println(ChatUtils.getTimeFormatNow());
+        System.out.println(chatService.getGroupMessage("61a3579f-39c8-4fc8-b4ed-f6e5ccd520f3").toString());
     }
+
+    @Test
+    void test4(){
+
+    }
+
 }
