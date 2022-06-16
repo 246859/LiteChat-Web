@@ -71,7 +71,7 @@ class LiteChatWebApplicationTests {
     @Test
     void test4(){
 //        System.out.println(chatService.getGroupMessage("61a3579f-39c8-4fc8-b4ed-f6e5ccd520f3", 0));
-//        System.out.println(chatService.getPrivateMessage("stranger","hsy",0));
+        System.out.println(chatService.getPrivateMessage("stranger","hsy",0));
     }
 
 }
