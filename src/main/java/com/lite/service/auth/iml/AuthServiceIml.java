@@ -1,5 +1,6 @@
 package com.lite.service.auth.iml;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lite.dao.authDao.AuthMapper;
@@ -8,10 +9,7 @@ import com.lite.dto.Token;
 import com.lite.entity.auth.LoginUser;
 import com.lite.entity.auth.User;
 import com.lite.service.auth.AuthService;
-import com.lite.utils.JwtUtil;
-import com.lite.utils.LiteHttpExceptionStatus;
-import com.lite.utils.PasswordEncoder;
-import com.lite.utils.RedisCache;
+import com.lite.utils.*;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -98,12 +96,19 @@ public class AuthServiceIml implements AuthService {
         try {
 
             Claims claims = JwtUtil.parseJWT(token);//尝试解析token
-            String userName = claims.getSubject();
+            String payload = claims.getSubject();
 
-            LoginUser user = cache.getCacheObject(userName);
 
-            if (!Objects.isNull(user)) {//如果缓存中的用户存在
-                result = cache.deleteObject(userName);//删除缓存中对应的用户
+            User user = JSON.parseObject(payload,User.class);
+
+            if (Objects.isNull(user)){
+                return ResponseUtils.getWrongResponseResult(LiteHttpExceptionStatus.LOGIN_FAIL.msg());
+            }
+
+            LoginUser loginUser = cache.getCacheObject(user.getUserName());
+
+            if (!Objects.isNull(loginUser)) {//如果缓存中的用户存在
+                result = cache.deleteObject(user.getUserName());//删除缓存中对应的用户
             }
 
         } catch (Exception e) {//解析失败表明token非法或者已经过期
